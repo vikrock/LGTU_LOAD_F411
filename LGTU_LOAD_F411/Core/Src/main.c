@@ -48,7 +48,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+char string[4] = {0,};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,8 +97,14 @@ int main(void)
   MX_TIM2_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  //запуск экрана:
   ssd1306_Init();
   start_screen();
+  //вывод тестовых значений на экран:
+  upd_chisl(13.2, 0);
+  upd_chisl(10.0, 1);
+  upd_chisl(12.2, 2);
+  upd_chisl(23.8, 3);
   /* USER CODE END 2 */
 
   /* Infinite loop */

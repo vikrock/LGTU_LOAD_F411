@@ -486,8 +486,59 @@ uint8_t ssd1306_GetDisplayOn() {
 }
 void start_screen(void)
 {
+	char tmp0[3] = {'O', 'F', 'F'};
+	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString(&tmp0, Font_11x18, White);
 	char tmp[2] = {'U', '='};
-	ssd1306_SetCursor(60, 0);
+	ssd1306_SetCursor(66, 0);
 	ssd1306_WriteString(&tmp, Font_11x18, White);
+	tmp[0] = 'I';
+	ssd1306_SetCursor(0, 21);
+	ssd1306_WriteString(&tmp, Font_11x18, White);
+	tmp[0] = 'u';
+	ssd1306_SetCursor(66, 21);
+	ssd1306_WriteString(&tmp, Font_11x18, White);
+	tmp[0] = 'Q';
+	ssd1306_SetCursor(0, 42);
+	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_UpdateScreen();
+}
+char float_to_string(char* string, float32_t chisl)
+{
+	uint8_t tmp = round (chisl*10);
+	*string = tmp / 100 + '0';
+	if (*string == '0')
+	{
+		*string = ' ';
+	}
+	string++;
+	*string = tmp / 10 % 10 + '0';
+	string++;
+	*string = '.';
+	string++;
+	*string = tmp % 10 + '0';
+	return string;
+}
+void upd_chisl(float32_t chisl, uint8_t position)
+{
+	char string[4] = {0,};
+	float_to_string(&string, chisl);
+	if (position == 0) //U=
+	{
+		ssd1306_SetCursor(84, 0);
+	}
+	if (position == 1)  //I=
+	{
+		ssd1306_SetCursor(18, 21);
+	}
+	if (position == 2) //u=
+	{
+		ssd1306_SetCursor(84, 21);
+	}
+	if (position == 3) //Q=
+	{
+		ssd1306_SetCursor(18, 42);
+	}
+	ssd1306_WriteString(&string, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }

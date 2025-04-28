@@ -484,3 +484,10 @@ void ssd1306_SetDisplayOn(const uint8_t on) {
 uint8_t ssd1306_GetDisplayOn() {
     return SSD1306.DisplayOn;
 }
+void start_screen(void)
+{
+	char tmp[2] = {'U', '='};
+	ssd1306_SetCursor(60, 0);
+	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_UpdateScreen();
+}

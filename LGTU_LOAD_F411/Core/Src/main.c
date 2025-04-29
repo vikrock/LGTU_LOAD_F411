@@ -49,6 +49,8 @@
 
 /* USER CODE BEGIN PV */
 char string[4] = {0,};
+uint8_t counter = 0; // переманная для счетчика энкодера
+uint8_t flag = 0; // переменная для обработки прерывания нажатия кнопки энкодера
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,6 +107,8 @@ int main(void)
   upd_chisl(10.0, 1);
   upd_chisl(12.2, 2);
   upd_chisl(23.8, 3);
+  // Запуск энкодера в режиме прерывания
+  HAL_TIM_Encoder_Start_IT(&htim1, TIM_CHANNEL_ALL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -164,6 +168,20 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) // обработка прерывания энкодера
+{
+if(htim->Instance == TIM1) {
+counter = TIM1->CNT;
+}
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) // обработка прерывания кнопки энкодера
+{
+if (GPIO_Pin == GPIO_PIN_14) {
+flag = 1;
+}
+}
 
 /* USER CODE END 4 */
 

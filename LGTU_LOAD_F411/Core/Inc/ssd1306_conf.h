@@ -7,9 +7,9 @@
 #define __SSD1306_CONF_H__
 
 // Choose a microcontroller family
-#define STM32F0
+//#define STM32F0
 //#define STM32F1
-//#define STM32F4
+#define STM32F4
 //#define STM32L0
 //#define STM32L1
 //#define STM32L4
@@ -43,10 +43,10 @@
 // # define SSD1306_INVERSE_COLOR
 
 // Include only needed fonts
-#define SSD1306_INCLUDE_FONT_6x8
-#define SSD1306_INCLUDE_FONT_7x10
+//#define SSD1306_INCLUDE_FONT_6x8
+//#define SSD1306_INCLUDE_FONT_7x10
 #define SSD1306_INCLUDE_FONT_11x18
-#define SSD1306_INCLUDE_FONT_16x26
+//#define SSD1306_INCLUDE_FONT_16x26
 
 // Some OLEDs don't display anything in first two columns.
 // In this case change the following macro to 130.

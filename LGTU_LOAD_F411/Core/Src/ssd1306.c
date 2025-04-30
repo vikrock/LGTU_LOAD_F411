@@ -503,6 +503,7 @@ void start_screen(void)
 	ssd1306_WriteString(&tmp, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
+/*
 char float_to_string(char* string, float32_t chisl)
 {
 	uint8_t tmp = round (chisl*10);
@@ -542,3 +543,4 @@ void upd_chisl(float32_t chisl, uint8_t position)
 	ssd1306_WriteString(&string, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
+*/

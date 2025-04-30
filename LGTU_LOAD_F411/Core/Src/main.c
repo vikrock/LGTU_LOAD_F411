@@ -103,10 +103,12 @@ int main(void)
   ssd1306_Init();
   start_screen();
   //вывод тестовых значений на экран:
+  /*
   upd_chisl(13.2, 0);
   upd_chisl(10.0, 1);
   upd_chisl(12.2, 2);
   upd_chisl(23.8, 3);
+  */
   // Запуск энкодера в режиме прерывания
   HAL_TIM_Encoder_Start_IT(&htim1, TIM_CHANNEL_ALL);
   /* USER CODE END 2 */

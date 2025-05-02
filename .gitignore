@@ -50,3 +50,4 @@ release
 *.su
 *.idb
 *.pdb
+/LGTU_LOAD_F411/

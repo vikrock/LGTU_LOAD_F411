@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>  // For memcpy
+#include "encoder.h"
+
 
 #if defined(SSD1306_USE_I2C)
 
@@ -488,19 +490,19 @@ void start_screen(void)
 {
 	char tmp0[3] = {'O', 'F', 'F'};
 	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString(&tmp0, Font_11x18, White);
+	ssd1306_WriteString(tmp0, Font_11x18, White);
 	char tmp[2] = {'U', '='};
 	ssd1306_SetCursor(66, 0);
-	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_WriteString(tmp, Font_11x18, White);
 	tmp[0] = 'I';
 	ssd1306_SetCursor(0, 21);
-	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_WriteString(tmp, Font_11x18, White);
 	tmp[0] = 'u';
 	ssd1306_SetCursor(66, 21);
-	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_WriteString(tmp, Font_11x18, White);
 	tmp[0] = 'Q';
 	ssd1306_SetCursor(0, 42);
-	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_WriteString(tmp, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
 /*
@@ -523,7 +525,7 @@ char float_to_string(char* string, float32_t chisl)
 void upd_chisl(float32_t chisl, uint8_t position)
 {
 	char string[4] = {0,};
-	float_to_string(&string, chisl);
+	float_to_string(string, chisl);
 	if (position == 0) //U=
 	{
 		ssd1306_SetCursor(84, 0);
@@ -540,7 +542,101 @@ void upd_chisl(float32_t chisl, uint8_t position)
 	{
 		ssd1306_SetCursor(18, 42);
 	}
-	ssd1306_WriteString(&string, Font_11x18, White);
+	ssd1306_WriteString(string, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
+
 */
+
+// Функция для отрисовки подчеркивания
+void draw_underline(uint8_t menu_item) {
+	static uint8_t prev_menu_item = 0; // Статическая переменная для храненеия предыдущего значения menu_item
+	if (menu_item == 1 || menu_item == 2) {
+		if (menu_item != prev_menu_item) {  // Проверка изменения menu_item
+		uint8_t x1, y1, x2, y2; // переменные для координат линии подчеркивания
+		x1 = 66;
+		y1 = 39;
+		x2 = 66 + 60; // ширина подчеркивания
+		y2 = 39;
+		ssd1306_Line(x1, y1, x2, y2, Black); // Стираем подчеркивание
+		x1 = 0;
+		y1 = 39;
+		x2 = 0 + 60; // ширина подчеркивания
+		y2 = 39;
+		ssd1306_Line(x1, y1, x2, y2, Black); // Стираем подчеркивание
+		switch (menu_item) { // В зависимости от пункта меню подчеркиваем значение
+		case 1:
+			x1 = 66; // Координата начала подчеркивания
+			y1 = 39;
+			x2 = 66 + 60; // Ширина подчеркивания
+			y2 = 39;
+			ssd1306_Line(x1 , y1, x2, y2, White); // Рисуем подчеркивание
+			break;
+			case 2:
+				x1 = 0; // Координата начала подчеркивания
+				y1 = 39;
+				x2 = 0 + 60; // Ширина подчеркивания
+				y2 = 39;
+				ssd1306_Line(x1 , y1, x2, y2, White); // Рисуем подчеркивание
+				break;
+		}
+		ssd1306_UpdateScreen(); // Обновляем экран
+		prev_menu_item = menu_item; // Обновляем предыдущее значение
+	}
+	}
+}
+// Функция для перерисовки значения OFF и ON
+void update_off_on () {
+	if (long_press == 1) { // Если длительное нажатие активно
+		char tmp0[4] = {'O', 'N', ' ', '\0'}; // пишем ON
+		ssd1306_SetCursor(0, 0); // устанавливаем курсор
+		ssd1306_WriteString(tmp0, Font_11x18, White); // Выводим строку на экран
+		ssd1306_UpdateScreen(); // Обновляем экран
+	} else {
+		char tmp0[4] = {'O', 'F', 'F', '\0'}; // Если длительное нажатие не активно пишем OFF
+		ssd1306_SetCursor(0, 0); // устанавливаем курсор
+		ssd1306_WriteString(tmp0, Font_11x18, White); // Выводим строку на экран
+		ssd1306_UpdateScreen(); // Обновляем экран
+	}
+}
+// функция для моргания подчеркивания
+void draw_blinking_underline(uint8_t menu_item) {
+	static uint32_t time_underline = 0; // статическая переменная для хранения времени
+	uint32_t current_time = HAL_GetTick(); // текущее время тиков
+    uint8_t x1, y1, x2, y2; // Переменные для координат
+    switch (menu_item) { // В зависимости от пункта меню реализуем моргалку
+    case 1:
+    	x1 = 66;
+    	y1 = 39;
+    	x2 = 66 + 60; // Ширина подчеркивания
+    	y2 = 39;
+    	// Если короткое нажатие активно и прошло 500мс
+    	if (short_press == 1 && (current_time - time_underline >= 500)) {
+    		time_underline = current_time; // обновляем время
+    		ssd1306_Line(x1, y1, x2, y2, White); // рисуем подчеркивание
+    	} else if (short_press == 1) {
+    		ssd1306_Line(x1, y1, x2, y2, Black); // стираем подчеркивание
+    	}
+    	else if (short_press == 0){ // Если активное нажатие не активно вызываем функцию статичного подчеркивание
+    		draw_underline(menu_item);
+    	}
+    	break;
+    	case 2:
+    		x1 = 0;
+            y1 = 39;
+            x2 = 0 + 60; // Ширина подчеркивания
+            y2 = 39;
+            // Если короткое нажатие активно и прошло 500мс
+            if (short_press == 1 && (current_time - time_underline >= 500)) {
+            	time_underline = current_time;  // обновляем время
+                ssd1306_Line(x1, y1, x2, y2, White); // рисуем подчеркивание
+            }  else if (short_press == 1) {
+            	ssd1306_Line(x1, y1, x2, y2, Black); // стираем подчеркивание
+            } else if (short_press == 0){ // Если активное нажатие не активно вызываем функцию статичного подчеркивание
+            	draw_underline(menu_item);
+            }
+            break;
+    }
+    ssd1306_UpdateScreen(); // Обновляем экран
+    }
+

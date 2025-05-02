@@ -30,35 +30,7 @@ void Encoder_Init(void) {
 	HAL_TIM_Encoder_Start_IT(&htim1, TIM_CHANNEL_ALL); // Запускаем энкодер в режиме прерывания и запускаем все проинициализированные каналы таймера 1
 }
 
-// Функция обработки прерывания от таймера энкодера
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == TIM1) { // Проверяем, что прерывание пришло от таймера 1
-		counter_encoder = TIM1->CNT; // считываем значение регистра счетчика таймера 1
-		if (short_press == 0) {
-			menu_item = (counter_encoder / 2) % 2 + 1; // Если короткое нажатие не активно, преобразуем 0-300 в 1-2;
-		}
-		if (short_press == 1) {
-			if (menu_item == 2) {
-				current_value = (float32_t) (counter_encoder) / 20.0f; // Вычисляем значение тока с шагом 0.1
-				if (current_value > 10.0f)
-					current_value = 10.0f; // Ограничение максимального значения
-				upd_chisl(current_value, 1); // обновляем значение тока на экране
-			} else if (menu_item == 1) {
-				voltage_value = (float32_t) (counter_encoder) / 20.0f; // Вычисляем значение напряжения с шагом 0.1
-				//if (voltage_value > 15.0f) voltage_value = 15.0f; // Можно не ограничивать так как максимальное значение = 15
-				upd_chisl(voltage_value, 2); // обновляем значение напряжения на экране
-			}
-		}
-	}
-}
-/*
-// Функция обработки прерывания от кнопки энкодера
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == GPIO_PIN_14) { // Проверяем что прерывание от GPIO_PIN_14
-		button_flag = 1; // Устанавливаем флажок, что пришло прерывание от кнопки энкодера
-	}
-}
-*/
+
 // Функция обработки кратковременных и длительных нажатий кнопки энкодера
 void Button_click_process() {
 	uint32_t ms = HAL_GetTick(); // получаем текущее время тиков

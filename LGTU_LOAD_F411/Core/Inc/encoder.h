@@ -8,6 +8,7 @@
 #ifndef INC_ENCODER_H_
 #define INC_ENCODER_H_
 
+#include "arm_math.h"
 
 // Объявление переменных
 extern uint16_t counter_encoder; 	// переменная для хранения значений счетчика энкодера от 0 до 300
@@ -16,9 +17,10 @@ extern uint8_t button_flag; 		// переменная для хранения ф
 extern uint8_t short_button_flag; 	// переменная для хранения флага кратковременного нажатия кнопки энкодера
 extern uint8_t long_button_flag; 	// переменная для хранения флага длительного нажатия кнопки энкодера
 extern uint8_t short_press; 		// переменная для хранения значения кнопки энкодера
-extern uint8_t long_press; 		// переменная для хранения значения кнопки энкодера
+extern uint8_t long_press; 			// переменная для хранения значения кнопки энкодера
 extern uint32_t time_key; 			// время нажатия кнопки
-
+extern float32_t current_value; 	// переменная для хранения значения тока настроенного энкодером
+extern float32_t voltage_value;	// переменная для хранения значения напряжения настроенного энкодером
 
 // Прототипы функций
 void Encoder_Init(void); // Обработка функции HAL на включение всех каналов первого таймера энкодера

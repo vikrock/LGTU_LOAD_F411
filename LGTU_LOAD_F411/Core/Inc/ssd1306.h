@@ -148,7 +148,10 @@ void ssd1306_DrawBitmap(uint8_t x, uint8_t y, const unsigned char* bitmap, uint8
 void start_screen(void);
 char float_to_string(char* string, float32_t chisl);
 void upd_chisl(float32_t chisl, uint8_t position);
-
+// Новые функции (добавил ЗУЕВ)
+void draw_underline(uint8_t menu_item); // Функция для отрисовки подчеркивания
+void update_off_on (void); // Функция для перерисовки значения OFF и ON
+void draw_blinking_underline(uint8_t menu_item); // функция для моргания подчеркивания
 
 /**
  * @brief Sets the contrast of the display.

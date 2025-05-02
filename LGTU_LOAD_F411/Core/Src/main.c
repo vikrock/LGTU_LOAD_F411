@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "arm_math.h"
 #include "ssd1306.h"
+#include "encoder.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,8 +50,6 @@
 
 /* USER CODE BEGIN PV */
 char string[4] = {0,};
-uint8_t counter = 0; // переманная для счетчика энкодера
-uint8_t flag = 0; // переменная для обработки прерывания нажатия кнопки энкодера
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,22 +98,29 @@ int main(void)
   MX_TIM2_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  Encoder_Init(); // Запуск всех каналов первого таймера энкодера
   //запуск экрана:
   ssd1306_Init();
   start_screen();
   //вывод тестовых значений на экран:
   upd_chisl(13.2, 0);
   upd_chisl(10.0, 1);
-  upd_chisl(12.2, 2);
+  upd_chisl(15.0, 2);
   upd_chisl(23.8, 3);
-  // Запуск энкодера в режиме прерывания
-  HAL_TIM_Encoder_Start_IT(&htim1, TIM_CHANNEL_ALL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+if (button_flag) {
+	Button_click_process(); // Если полнялся флажок прерывания кнопки энкодера, выполняем функцию
+	}
+
+update_off_on (); // Функция изменения значения OFF на ON и ON на OFF при фиксировании длительного нажатия
+draw_blinking_underline(menu_item); // Функция для реализации моргания и статичного подчеркивания изменяемых энкодером значений
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -168,20 +174,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) // обработка прерывания энкодера
-{
-if(htim->Instance == TIM1) {
-counter = TIM1->CNT;
-}
-}
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) // обработка прерывания кнопки энкодера
-{
-if (GPIO_Pin == GPIO_PIN_14) {
-flag = 1;
-}
-}
 
 /* USER CODE END 4 */
 

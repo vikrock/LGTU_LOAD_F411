@@ -4,6 +4,7 @@
 #include <string.h>  // For memcpy
 #include "encoder.h"
 
+
 #if defined(SSD1306_USE_I2C)
 
 void ssd1306_Reset(void) {
@@ -489,19 +490,19 @@ void start_screen(void)
 {
 	char tmp0[3] = {'O', 'F', 'F'};
 	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteString(&tmp0, Font_11x18, White);
+	ssd1306_WriteString(tmp0, Font_11x18, White);
 	char tmp[2] = {'U', '='};
 	ssd1306_SetCursor(66, 0);
-	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_WriteString(tmp, Font_11x18, White);
 	tmp[0] = 'I';
 	ssd1306_SetCursor(0, 21);
-	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_WriteString(tmp, Font_11x18, White);
 	tmp[0] = 'u';
 	ssd1306_SetCursor(66, 21);
-	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_WriteString(tmp, Font_11x18, White);
 	tmp[0] = 'Q';
 	ssd1306_SetCursor(0, 42);
-	ssd1306_WriteString(&tmp, Font_11x18, White);
+	ssd1306_WriteString(tmp, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
 char float_to_string(char* string, float32_t chisl)
@@ -523,7 +524,7 @@ char float_to_string(char* string, float32_t chisl)
 void upd_chisl(float32_t chisl, uint8_t position)
 {
 	char string[4] = {0,};
-	float_to_string(&string, chisl);
+	float_to_string(string, chisl);
 	if (position == 0) //U=
 	{
 		ssd1306_SetCursor(84, 0);
@@ -540,7 +541,7 @@ void upd_chisl(float32_t chisl, uint8_t position)
 	{
 		ssd1306_SetCursor(18, 42);
 	}
-	ssd1306_WriteString(&string, Font_11x18, White);
+	ssd1306_WriteString(string, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
 // Функция для отрисовки подчеркивания

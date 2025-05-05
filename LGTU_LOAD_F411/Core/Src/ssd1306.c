@@ -1,5 +1,4 @@
 #include "ssd1306.h"
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>  // For memcpy
 #include "encoder.h"
@@ -505,27 +504,27 @@ void start_screen(void)
 	ssd1306_WriteString(tmp, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
-/*
-char float_to_string(char* string, float32_t chisl)
-{
-	uint8_t tmp = round (chisl*10);
-	*string = tmp / 100 + '0';
-	if (*string == '0')
-	{
-		*string = ' ';
-	}
-	string++;
-	*string = tmp / 10 % 10 + '0';
-	string++;
-	*string = '.';
-	string++;
-	*string = tmp % 10 + '0';
-	return string;
+
+uint8_t float_to_str(float value, char *buf, size_t buf_size, uint8_t precision) {
+
+    char format[6];
+    format[0] = '%';
+    format[1] = '.';
+    format[2] = '0' + precision;
+    format[3] = 'f';
+    format[4] = '\0';
+
+    int result = snprintf(buf, buf_size, format, value);
+    return (uint8_t)(result + 1);
+
 }
+
+
 void upd_chisl(float32_t chisl, uint8_t position)
 {
 	char string[4] = {0,};
-	float_to_string(string, chisl);
+	float_to_str(chisl, string, 4, 2);
+	//float_to_string(string, chisl);
 	if (position == 0) //U=
 	{
 		ssd1306_SetCursor(84, 0);
@@ -545,9 +544,6 @@ void upd_chisl(float32_t chisl, uint8_t position)
 	ssd1306_WriteString(string, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
-
-*/
-
 // Функция для отрисовки подчеркивания
 void draw_underline(uint8_t menu_item) {
 	static uint8_t prev_menu_item = 0; // Статическая переменная для храненеия предыдущего значения menu_item
@@ -639,4 +635,3 @@ void draw_blinking_underline(uint8_t menu_item) {
     }
     ssd1306_UpdateScreen(); // Обновляем экран
     }
-

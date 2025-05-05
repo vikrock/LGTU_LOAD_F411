@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <_ansi.h>
 #include "arm_math.h"
+#include "stdio.h"
 _BEGIN_STD_C
 
 #include "ssd1306_conf.h"
@@ -146,7 +147,7 @@ void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD13
 void ssd1306_DrawRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
 void ssd1306_DrawBitmap(uint8_t x, uint8_t y, const unsigned char* bitmap, uint8_t w, uint8_t h, SSD1306_COLOR color);
 void start_screen(void);
-char float_to_string(char* string, float32_t chisl);
+uint8_t float_to_str(float, char *, size_t, uint8_t);
 void upd_chisl(float32_t chisl, uint8_t position);
 // Новые функции (добавил ЗУЕВ)
 void draw_underline(uint8_t menu_item); // Функция для отрисовки подчеркивания

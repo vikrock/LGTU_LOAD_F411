@@ -523,7 +523,8 @@ uint8_t float_to_str(float value, char *buf, size_t buf_size, uint8_t precision)
 void upd_chisl(float32_t chisl, uint8_t position)
 {
 	char string[4] = {0,};
-	float_to_string(string, chisl);
+	float_to_str(chisl, string, 4, 2);
+	//float_to_string(string, chisl);
 	if (position == 0) //U=
 	{
 		ssd1306_SetCursor(84, 0);

@@ -101,24 +101,26 @@ int main(void) {
 	//запуск экрана:
 	ssd1306_Init();
 	start_screen();
+	upd_mode(1);
+	upd_type(1);
 	//вывод тестовых значений на экран:
-	upd_chisl(13.2, 0);
-	upd_chisl(10.0, 1);
-	upd_chisl(15.0, 2);
-	upd_chisl(23.8, 3);
+	upd_chisl(13.2, 4);
+	upd_chisl(10.0, 5);
+	//upd_chisl(15.0, 2);
+	//upd_chisl(23.8, 3);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
 
-		if (button_flag) {
+/*		if (button_flag) {
 			Button_click_process(); // Если полнялся флажок прерывания кнопки энкодера, выполняем функцию
 		}
 
 		update_off_on(); // Функция изменения значения OFF на ON и ON на OFF при фиксировании длительного нажатия
 		draw_blinking_underline(menu_item); // Функция для реализации моргания и статичного подчеркивания изменяемых энкодером значений
-
+*/
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */

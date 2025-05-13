@@ -487,6 +487,29 @@ uint8_t ssd1306_GetDisplayOn() {
 }
 void start_screen(void)
 {
+	char tmp[5] = {'M', 'o', 'd', 'e', ':'};
+	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteString(tmp, Font_11x18, White);
+	tmp[0] = 'T';
+	tmp[1] = 'y';
+	tmp[2] = 'p';
+	tmp[3] = 'e';
+	ssd1306_SetCursor(0, 21);
+	ssd1306_WriteString(tmp, Font_11x18, White);
+	tmp[0] = 'I';
+	tmp[1] = '=';
+	tmp[2] = ' ';
+	tmp[3] = ' ';
+	tmp[4] = ' ';
+	ssd1306_SetCursor(0, 42);
+	ssd1306_WriteString(tmp, Font_11x18, White);
+	tmp[0] = 'U';
+	ssd1306_SetCursor(66, 42);
+	ssd1306_WriteString(tmp, Font_11x18, White);
+	ssd1306_UpdateScreen();
+}
+void online_screen(void)
+{
 	char tmp0[3] = {'O', 'F', 'F'};
 	ssd1306_SetCursor(0, 0);
 	ssd1306_WriteString(tmp0, Font_11x18, White);
@@ -504,16 +527,61 @@ void start_screen(void)
 	ssd1306_WriteString(tmp, Font_11x18, White);
 	ssd1306_UpdateScreen();
 }
+void upd_mode(uint8_t numb)
+{
+	char mode_load[5] = {'L', 'o', 'a', 'd', ' '};
+	char mode_disch[5] = {'D', 'i', 's', 'C', 'h'};
+	ssd1306_SetCursor(66, 0);
+	if (numb==0)
+	{
+		ssd1306_WriteString(mode_load, Font_11x18, White);
+	}
+	if (numb==1)
+	{
+		ssd1306_WriteString(mode_disch, Font_11x18, White);
+	}
+	ssd1306_UpdateScreen();
+}
+void upd_type(uint8_t numb)
+{
+	char type_lipo[5] = {'L', 'i', '-', 'P', 'o'};
+	char type_pbibp[5] = {'P', 'b', 'I', 'B', 'P'};
+	char type_pbcar[5] = {'P', 'b', 'C', 'a', 'r'};
+	char type_other[5] = {'O', 't', 'h', 'e', 'r'};
+	ssd1306_SetCursor(66, 21);
+	if (numb==0)
+	{
+		ssd1306_WriteString(type_lipo, Font_11x18, White);
+	}
+	if (numb==1)
+	{
+		ssd1306_WriteString(type_pbibp, Font_11x18, White);
+	}
+	if (numb==2)
+		{
+			ssd1306_WriteString(type_pbcar, Font_11x18, White);
+		}
+	if (numb==3)
+		{
+			ssd1306_WriteString(type_other, Font_11x18, White);
+		}
+	ssd1306_UpdateScreen();
+}
 
 uint8_t float_to_str(float value, char *buf, size_t buf_size, uint8_t precision) {
 
-    char format[6];
-    format[0] = '%';
+    char format[5];
+/*    format[0] = '%';
     format[1] = '.';
     format[2] = '0' + precision;
     format[3] = 'f';
     format[4] = '\0';
-
+   */
+    	format[0] = '%';
+        format[1] = '4';
+        format[2] = '.';
+        format[3] = '0'+precision;
+        format[4] = 'f';
     int result = snprintf(buf, buf_size, format, value);
     return (uint8_t)(result + 1);
 
@@ -523,23 +591,31 @@ uint8_t float_to_str(float value, char *buf, size_t buf_size, uint8_t precision)
 void upd_chisl(float32_t chisl, uint8_t position)
 {
 	char string[4] = {0,};
-	float_to_str(chisl, string, 4, 2);
+	float_to_str(chisl, string, 5, 2);
 	//float_to_string(string, chisl);
-	if (position == 0) //U=
+	if (position == 0)
+	{
+		ssd1306_SetCursor(18, 0);
+	}
+	if (position == 1)
 	{
 		ssd1306_SetCursor(84, 0);
 	}
-	if (position == 1)  //I=
+	if (position == 2)
 	{
 		ssd1306_SetCursor(18, 21);
 	}
-	if (position == 2) //u=
+	if (position == 3)
 	{
 		ssd1306_SetCursor(84, 21);
 	}
-	if (position == 3) //Q=
+	if (position == 4)
 	{
 		ssd1306_SetCursor(18, 42);
+	}
+	if (position == 5)
+	{
+		ssd1306_SetCursor(84, 42);
 	}
 	ssd1306_WriteString(string, Font_11x18, White);
 	ssd1306_UpdateScreen();

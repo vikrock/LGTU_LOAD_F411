@@ -154,8 +154,9 @@ void upd_mode(uint8_t numb);
 void upd_type(uint8_t numb);
 // Новые функции (добавил ЗУЕВ)
 void draw_underline(uint8_t menu_item); // Функция для отрисовки подчеркивания
-void update_off_on (void); // Функция для перерисовки значения OFF и ON
 void draw_blinking_underline(uint8_t menu_item); // функция для моргания подчеркивания
+void change_screen (uint8_t long_press); // Функция для смены экранов
+
 
 /**
  * @brief Sets the contrast of the display.

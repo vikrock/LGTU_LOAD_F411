@@ -97,26 +97,29 @@ int main(void) {
 	MX_TIM2_Init();
 	MX_USART1_UART_Init();
 	/* USER CODE BEGIN 2 */
-	Encoder_Init(); // Запуск всех каналов первого таймера энкодера
+	HAL_TIM_Encoder_Start_IT(&htim1, TIM_CHANNEL_ALL); // Запускаем энкодер в режиме прерывания и запускаем каналы таймера 1
 	//запуск экрана:
 	ssd1306_Init();
-	start_screen();
+	start_screen(); // рисуем стартовый экран
+	upd_mode(1); // выводим стартовый режим
+	upd_type(1); // выводим стартовый тип нагрузки
 	//вывод тестовых значений на экран:
-	upd_chisl(13.2, 0);
-	upd_chisl(10.0, 1);
-	upd_chisl(15.0, 2);
-	upd_chisl(23.8, 3);
+	upd_chisl(15.0, 4);
+	upd_chisl(10.0, 5);
+	//upd_chisl(15.0, 2);
+	//upd_chisl(23.8, 3);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
 
+		change_screen (long_press); // опрашиваем смену экрана по длительному нажатию кнопки энкодера
+
 		if (button_flag) {
 			Button_click_process(); // Если полнялся флажок прерывания кнопки энкодера, выполняем функцию
 		}
 
-		update_off_on(); // Функция изменения значения OFF на ON и ON на OFF при фиксировании длительного нажатия
 		draw_blinking_underline(menu_item); // Функция для реализации моргания и статичного подчеркивания изменяемых энкодером значений
 
 		/* USER CODE END WHILE */
@@ -181,18 +184,28 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM1) { // Проверяем, что прерывание пришло от таймера 1
 		counter_encoder = TIM1->CNT; // считываем значение регистра счетчика таймера 1
 		if (short_press == 0) {
-			menu_item = (counter_encoder / 2) % 2 + 1; // Если короткое нажатие не активно, преобразуем 0-300 в 1-2;
+			menu_item = (counter_encoder / 2) % 4 + 1; // Если короткое нажатие не активно, преобразуем 0-300 в 1-4;
+		}
+		if (short_press == 1 && menu_item == 1) {
+			mode_item = (counter_encoder / 2) % 2 + 1; // Если короткое нажатие активно и выбран первый пункт меню, преобразуем 0-300 в 1-2;
+		}
+		if (short_press == 1 && menu_item == 2) {
+			type_item = (counter_encoder / 2) % 4 + 1; // Если короткое нажатие активно и выбран второй пункт меню, преобразуем 0-300 в 1-4;
 		}
 		if (short_press == 1) {
-			if (menu_item == 2) {
+			if (menu_item == 4) {
 				current_value = (float32_t) (counter_encoder) / 20.0f; // Вычисляем значение тока с шагом 0.1
 				if (current_value > 10.0f)
 					current_value = 10.0f; // Ограничение максимального значения
-				upd_chisl(current_value, 1); // обновляем значение тока на экране
-			} else if (menu_item == 1) {
+				upd_chisl(current_value, 4); // обновляем значение тока на экране
+			}   if (menu_item == 3) {
 				voltage_value = (float32_t) (counter_encoder) / 20.0f; // Вычисляем значение напряжения с шагом 0.1
 				//if (voltage_value > 15.0f) voltage_value = 15.0f; // Можно не ограничивать так как максимальное значение = 15
-				upd_chisl(voltage_value, 2); // обновляем значение напряжения на экране
+				upd_chisl(voltage_value, 5); // обновляем значение напряжения на экране
+			}   if (menu_item == 1) {
+				upd_mode(mode_item);
+			}   if (menu_item == 2) {
+				upd_type(type_item);
 			}
 		}
 	}

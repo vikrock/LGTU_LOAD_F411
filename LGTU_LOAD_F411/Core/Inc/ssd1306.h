@@ -147,12 +147,16 @@ void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD13
 void ssd1306_DrawRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
 void ssd1306_DrawBitmap(uint8_t x, uint8_t y, const unsigned char* bitmap, uint8_t w, uint8_t h, SSD1306_COLOR color);
 void start_screen(void);
+void online_screen(void);
 uint8_t float_to_str(float, char *, size_t, uint8_t);
 void upd_chisl(float32_t chisl, uint8_t position);
+void upd_mode(uint8_t numb);
+void upd_type(uint8_t numb);
 // Новые функции (добавил ЗУЕВ)
 void draw_underline(uint8_t menu_item); // Функция для отрисовки подчеркивания
-void update_off_on (void); // Функция для перерисовки значения OFF и ON
 void draw_blinking_underline(uint8_t menu_item); // функция для моргания подчеркивания
+void change_screen (uint8_t long_press); // Функция для смены экранов
+
 
 /**
  * @brief Sets the contrast of the display.

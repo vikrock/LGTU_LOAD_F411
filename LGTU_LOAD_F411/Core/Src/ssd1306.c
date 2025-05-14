@@ -572,17 +572,19 @@ void upd_type(uint8_t numb)
 uint8_t float_to_str(float value, char *buf, size_t buf_size, uint8_t precision) {
 
     char format[5];
-/*    format[0] = '%';
+    /*
+    format[0] = '%';
     format[1] = '.';
     format[2] = '0' + precision;
     format[3] = 'f';
     format[4] = '\0';
-   */
+    */
     	format[0] = '%';
         format[1] = '4';
         format[2] = '.';
         format[3] = '0'+precision;
         format[4] = 'f';
+
     int result = snprintf(buf, buf_size, format, value);
     return (uint8_t)(result + 1);
 
@@ -591,9 +593,8 @@ uint8_t float_to_str(float value, char *buf, size_t buf_size, uint8_t precision)
 
 void upd_chisl(float32_t chisl, uint8_t position)
 {
-	char string[4] = {0,};
-	float_to_str(chisl, string, 5, 2);
-	//float_to_string(string, chisl);
+	char string[5] = {0,};
+	float_to_str(chisl, string, 5, 1);
 	if (position == 0)
 	{
 		ssd1306_SetCursor(18, 0);
@@ -623,9 +624,9 @@ void upd_chisl(float32_t chisl, uint8_t position)
 }
 // Функция для отрисовки подчеркивания
 void draw_underline(uint8_t menu_item) {
-	static uint8_t prev_menu_item = 0; // Статическая переменная для храненеия предыдущего значения menu_item
-	if (menu_item >= 1 && menu_item <= 4) {
-		if (menu_item != prev_menu_item) {  // Проверка изменения menu_item
+	//static uint8_t prev_menu_item = 0; // Статическая переменная для храненеия предыдущего значения menu_item
+	if (menu_item >= 1 && menu_item <= 4 && long_press == 0) {
+		//if (menu_item != prev_menu_item) {  // Проверка изменения menu_item
 		uint8_t x1, y1, x2, y2; // переменные для координат линии подчеркивания
 		x1 = 66;
 		y1 = 19;
@@ -679,10 +680,10 @@ void draw_underline(uint8_t menu_item) {
 			    		break;
 		}
 		ssd1306_UpdateScreen(); // Обновляем экран
-		prev_menu_item = menu_item; // Обновляем предыдущее значение
+		//prev_menu_item = menu_item; // Обновляем предыдущее значение
 	}
 	}
-}
+//}
 
 // функция для моргания подчеркивания
 void draw_blinking_underline(uint8_t menu_item) {
@@ -696,7 +697,7 @@ void draw_blinking_underline(uint8_t menu_item) {
     	x2 = 66 + 60; // Ширина подчеркивания
     	y2 = 19;
     	// Если короткое нажатие активно и прошло 500мс
-    	if (short_press == 1 && (current_time - time_underline >= 600)) {
+    	if (short_press == 1 && long_press == 0 && (current_time - time_underline >= 600)) {
     		time_underline = current_time; // обновляем время
     		ssd1306_Line(x1, y1, x2, y2, White); // рисуем подчеркивание
     	} else if (short_press == 1) {
@@ -712,7 +713,7 @@ void draw_blinking_underline(uint8_t menu_item) {
             x2 = 66 + 60; // Ширина подчеркивания
             y2 = 39;
             // Если короткое нажатие активно и прошло 500мс
-            if (short_press == 1 && (current_time - time_underline >= 600)) {
+            if (short_press == 1 && long_press == 0 && (current_time - time_underline >= 600)) {
             	time_underline = current_time;  // обновляем время
                 ssd1306_Line(x1, y1, x2, y2, White); // рисуем подчеркивание
             }  else if (short_press == 1) {
@@ -727,7 +728,7 @@ void draw_blinking_underline(uint8_t menu_item) {
     	    	x2 = 66 + 60; // Ширина подчеркивания
     	    	y2 = 59;
     	    	// Если короткое нажатие активно и прошло 500мс
-    	    	if (short_press == 1 && (current_time - time_underline >= 600)) {
+    	    	if (short_press == 1 && long_press == 0 && (current_time - time_underline >= 600)) {
     	    		time_underline = current_time; // обновляем время
     	    		ssd1306_Line(x1, y1, x2, y2, White); // рисуем подчеркивание
     	    	} else if (short_press == 1) {
@@ -743,7 +744,7 @@ void draw_blinking_underline(uint8_t menu_item) {
     	    	x2 = 0 + 60; // Ширина подчеркивания
     	    	y2 = 59;
     	    	// Если короткое нажатие активно и прошло 500мс
-    	    	if (short_press == 1 && (current_time - time_underline >= 600)) {
+    	    	if (short_press == 1 && long_press == 0 && (current_time - time_underline >= 600)) {
     	    		time_underline = current_time; // обновляем время
     	    		ssd1306_Line(x1, y1, x2, y2, White); // рисуем подчеркивание
     	    	} else if (short_press == 1) {
@@ -766,8 +767,17 @@ void change_screen (uint8_t long_press) {
 	            start_screen(); // рисуем стартовый экран
 	            upd_mode(mode_item); // выводим значение сохраненного режима
 	            upd_type(type_item);  // выводим значения сохраненного типа нагрузки
+	            upd_chisl(current_value, 4); // выводим значение регулируемых параметров (ток)
+	            upd_chisl(voltage_value, 5); // выводим значение регулируемых параметров (напряжение)
 	        } else if (long_press == 1) {
 	            online_screen(); // рисуем второй экран
+	            upd_chisl(0.0, 1); // тестовое значение
+	            upd_chisl(current_value, 2); // выводим значение регулируемых параметров (ток)
+	            upd_chisl(voltage_value, 3); // выводим значение регулируемых параметров (напряжение)
+	            upd_chisl(0.0, 4); // тестовое значение
 	        }
 	    }
 	}
+
+
+

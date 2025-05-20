@@ -101,12 +101,11 @@ int main(void)
 	HAL_TIM_Encoder_Start_IT(&htim1, TIM_CHANNEL_ALL); // Запускаем энкодер в режиме прерывания и запускаем каналы таймера 1
 	//запуск экрана:
 	ssd1306_Init();
-	start_screen(); // рисуем стартовый экран
+	start_screen(mode_item); // рисуем стартовый экран
 	upd_mode(1); // выводим стартовый режим
-	upd_type(1); // выводим стартовый тип нагрузки
 	//вывод тестовых значений на экран:
-	upd_chisl(0.0, 4);
-	upd_chisl(0.0, 5);
+	//upd_chisl(0.0, 2);
+	//upd_chisl(0.0, 3);
 	//upd_chisl(15.0, 2);
 	//upd_chisl(23.8, 3);
   /* USER CODE END 2 */
@@ -115,14 +114,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 
-		change_screen (long_press); // опрашиваем смену экрана по длительному нажатию кнопки энкодера
+
 
 		if (button_flag) {
 			Button_click_process(); // Если полнялся флажок прерывания кнопки энкодера, выполняем функцию
 		}
-
-		draw_blinking_underline(menu_item); // Функция для реализации моргания и статичного подчеркивания изменяемых энкодером значений
-
+		change_screen (long_press); // опрашиваем смену экрана по длительному нажатию кнопки энкодера
+		if (mode_item == 2) {
+		draw_blinking_underline_disch(menu_item_disch); // Функция для реализации моргания и статичного подчеркивания изменяемых энкодером значений
+		}
+	    if (mode_item == 1) {
+		draw_blinking_underline_load(menu_item_load);
+		}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -184,53 +187,81 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 }
 
 // Функция для обработки прерывания энкодера
+
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
     static uint16_t prev_counter_encoder = 0; // Переменная для хранения предыдущего значения counter_encoder
     int16_t encoder_diff = 0; // Переменная которая хранит разницу текущего и предыдущего значения
 
     if (htim->Instance == TIM1) { // Проверяем, что прерывание пришло от таймера 1
-        if (long_press == 0) {
+
+    	if (long_press == 0) {
     	encoder_diff = TIM1->CNT - prev_counter_encoder; // Вычисляем разницу между текущим и предыдущим значением счетчика
         counter_encoder = TIM1->CNT; // текущее значение счетчика
         }
 
-        if (short_press == 0 && long_press == 0) {
-            menu_item = (counter_encoder / 2) % 4 + 1; // Вычисляем выбранный пункт меню (1-4)
+    	if (short_press == 0 && long_press == 0 && mode_item == 1) {
+    	    menu_item_load = (counter_encoder >> 1) % 3U + 1U; // Вычисляем выбранный пункт меню (1-3)
+    	}
+
+        if (short_press == 0 && long_press == 0 && mode_item == 2) {
+            menu_item_disch = (counter_encoder >> 1) % 4U + 1U; // Вычисляем выбранный пункт меню (1-4)
         }
 
-        if (short_press == 1 && menu_item == 1) {
-        	mode_item = (counter_encoder / 2) % 2 + 1; // Если короткое нажатие активно и выбран первый пункт меню, преобразуем 0-300 в 1-2;
-        }
-        if (short_press == 1 && menu_item == 2) {
-        	type_item = (counter_encoder / 2) % 4 + 1; // Если короткое нажатие активно и выбран второй пункт меню, преобразуем 0-300 в 1-4;
-        }
 
-        if (short_press == 1 && long_press == 0) {
-            if (menu_item == 4) {
-                current_value += 0.1f * (encoder_diff / 2.0f); // Увеличиваем/уменьшаем current_value на 0.1 за каждый щелчок (корректировка из-за шага 2)
-                if (current_value > 10.0f) current_value = 10.0f; // Ограничение максимального значения
-                if (current_value < 0.0f) current_value = 0.0f; // Ограничение минимального значения
-                upd_chisl(current_value, 4); // обновляем значение тока на экране
+        if (short_press == 1 && long_press == 0 && mode_item == 2) {
+                switch (menu_item_disch) {
+                    case 1:
+                        mode_item = (counter_encoder >> 1) % 2U + 1U;
+                        start_screen(mode_item);
+                        upd_mode(mode_item);
+                        break;
+                    case 2:
+                        type_item = (counter_encoder >> 1) % 4U + 1U;
+                        upd_type(type_item);
+                        break;
+                    case 3:
+                        voltage_value += 0.1f * (encoder_diff >> 1);
+                        if (voltage_value > 15.0f) voltage_value = 15.0f;
+                        if (voltage_value < 0.0f) voltage_value = 0.0f;
+                        upd_chisl(voltage_value, 5);
+                        break;
+                    case 4:
+                        current_value += 0.1f * (encoder_diff >> 1);
+                        if (current_value > 10.0f) current_value = 10.0f;
+                        if (current_value < 0.0f) current_value = 0.0f;
+                        upd_chisl(current_value, 4);
+                        break;
+                }
             }
+        if (short_press == 1 && long_press == 0 && mode_item == 1) {
+                        switch (menu_item_load) {
+                            case 1:
+                                mode_item = (counter_encoder >> 1) % 2U + 1U;
+                                start_screen(mode_item);
+                                upd_mode(mode_item);
+                                break;
+                            case 2:
+                            voltage_value += 0.1f * (encoder_diff >> 1);
+                            if (voltage_value > 15.0f) voltage_value = 15.0f;
+                            if (voltage_value < 0.0f) voltage_value = 0.0f;
+                            upd_chisl(voltage_value, 3);
+                            break;
+                           case 3:
+                             current_value += 0.1f * (encoder_diff >> 1);
+                            if (current_value > 10.0f) current_value = 10.0f;
+                            if (current_value < 0.0f) current_value = 0.0f;
+                            upd_chisl(current_value, 2);
+                            break;
 
-            if (menu_item == 3) {
-                voltage_value += 0.1f * (encoder_diff / 2.0f); // Увеличиваем/уменьшаем current_value на 0.1 за каждый щелчок (корректировка из-за шага 2)
-                if (voltage_value > 15.0f) voltage_value = 15.0f; // Ограничение максимального значения
-                if (voltage_value < 0.0f) voltage_value = 0.0f; // Ограничение минимального значения
-                upd_chisl(voltage_value, 5); // обновляем значение напряжения на экране
-            }
-
-            if (menu_item == 1) {           // Если выбран пункт меню 1 (режим работы)
-                upd_mode(mode_item);        // Обновляем режим работы
-            }
-
-            if (menu_item == 2) {              // Если выбран пункт меню 2 (тип)
-                upd_type(type_item);           // Обновляем тип
-            }
+                        }
         }
         prev_counter_encoder = counter_encoder; // Сохраняем текущее значение для следующего вызова
-    }
 }
+}
+
+
+
+
 /* USER CODE END 4 */
 
 /**

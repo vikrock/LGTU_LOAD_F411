@@ -597,25 +597,25 @@ void upd_mode(uint8_t numb)
 void upd_type(uint8_t numb)
 {
 	char type_lipo[5] = {'L', 'i', '-', 'P', 'o'};
-	char type_pbibp[5] = {'P', 'b', 'I', 'B', 'P'};
+	char type_liion[5] = {'L', 'i', 'I', 'o', 'n'};
 	char type_pbcar[5] = {'P', 'b', 'C', 'a', 'r'};
 	char type_other[5] = {'O', 't', 'h', 'e', 'r'};
 	ssd1306_SetCursor(66, 21);
 	if (numb == 1)
 	{
+		ssd1306_WriteString(type_other, Font_11x18, White);
+	}
+	if (numb == 4)
+	{
 		ssd1306_WriteString(type_lipo, Font_11x18, White);
 	}
 	if (numb == 2)
 	{
-		ssd1306_WriteString(type_pbibp, Font_11x18, White);
+		ssd1306_WriteString(type_liion, Font_11x18, White);
 	}
 	if (numb == 3)
 	{
 		ssd1306_WriteString(type_pbcar, Font_11x18, White);
-	}
-	if (numb == 4)
-	{
-		ssd1306_WriteString(type_other, Font_11x18, White);
 	}
 	ssd1306_UpdateScreen();
 }

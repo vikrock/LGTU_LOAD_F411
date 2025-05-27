@@ -182,12 +182,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 // Функция для обработки прерывания энкодера
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
-	static uint16_t prev_counter_encoder = 0; // Переменная для хранения предыдущего значения counter_encoder
-	int16_t encoder_diff = 0; // Переменная которая хранит разницу текущего и предыдущего значения
-	static uint8_t prev_type_item = 0; // Статическая переменная для отслеживания изменения type_item
-	static uint8_t prev_mode_item = 0; // Статическая переменная для отслеживания изменения mode_item
-
 	if (htim->Instance == TIM1) { // Проверяем, что прерывание пришло от таймера 1
+
+		static uint16_t prev_counter_encoder = 0; // Переменная для хранения предыдущего значения counter_encoder
+		static uint8_t prev_type_item = 0; // Статическая переменная для отслеживания изменения type_item
+		static uint8_t prev_mode_item = 0; // Статическая переменная для отслеживания изменения mode_item
+		int16_t encoder_diff = 0; // Переменная которая хранит разницу текущего и предыдущего значения
 
 		if (long_press == 0) {
 			encoder_diff = TIM1->CNT - prev_counter_encoder; // Вычисляем разницу между текущим и предыдущим значением счетчика
@@ -221,15 +221,14 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 					voltage_value = 0.0f; // Выставляем нулевые значения
 					current_value = 0.0f;
 					break;
-					case 2:
-						voltage_value = 0.0f; // Выставляем нулевые значения
-						current_value = 0.0f;
-						break;
+				case 2:
+					voltage_value = 0.0f; // Выставляем нулевые значения
+					current_value = 0.0f;
+					break;
 				}
 				upd_chisl(voltage_value, 5); // Обновляем экран с новым значением напряжения
 				upd_chisl(current_value, 4); // Обновляем экран с новым значением тока
-				}
-
+			}
 
 			if (type_item != prev_type_item) { // Сбрасываем значения напряжения и тока при изменении типа аккумулятора
 				switch (type_item) {
@@ -237,37 +236,39 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 					voltage_value = 0.0f; // Минимальное напряжение для ручной настройки
 					current_value = 0.0f; // Максимальный ток
 					break;
-					case 2: // Аккумулятор Li-Ion
-						voltage_value = 3.5f; // Минимальное напряжение для Li-Ion
-						current_value = 1.0f; // Максимальный ток
-						break;
-						case 3: // Аккумулятор PbCar
-							voltage_value = 12.0f; // Минимальное напряжение для PbCar
-							current_value = 3.0f; // Максимальный ток
-							break;
-							case 4: // Аккумулятор Li-Po
-								voltage_value = 3.7f; // Минимальное напряжение для Li-Po
-								current_value = 1.0f; // Максимальный ток
-								break;
+				case 2: // Аккумулятор Li-Ion
+					voltage_value = 3.5f; // Минимальное напряжение для Li-Ion
+					current_value = 1.0f; // Максимальный ток
+					break;
+				case 3: // Аккумулятор PbCar
+					voltage_value = 12.0f; // Минимальное напряжение для PbCar
+					current_value = 3.0f; // Максимальный ток
+					break;
+				case 4: // Аккумулятор Li-Po
+					voltage_value = 3.7f; // Минимальное напряжение для Li-Po
+					current_value = 1.0f; // Максимальный ток
+					break;
 				}
 				upd_chisl(voltage_value, 5); // Обновляем экран с новым значением напряжения
 				upd_chisl(current_value, 4); // Обновляем экран с новым значением тока
-				}
+			}
 
 			if (type_item == 1) { // Ручная настройка аккумулятора
 				switch (menu_item_disch) {
 				case 3:
 					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
-					voltage_value = (voltage_value > 15.0f) ? 15.0f : voltage_value;
+					voltage_value =
+							(voltage_value > 15.0f) ? 15.0f : voltage_value;
 					voltage_value = (voltage_value < 0.0f) ? 0 : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
-					case 4:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-						current_value = (current_value > 5.0f) ? 5.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 4);
-						break;
+				case 4:
+					current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
+					current_value =
+							(current_value > 5.0f) ? 5.f : current_value;
+					current_value = (current_value < 0.0f) ? 0 : current_value;
+					upd_chisl(current_value, 4);
+					break;
 				}
 			}
 
@@ -275,16 +276,16 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 				switch (menu_item_disch) {
 				case 3:
 					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
-					voltage_value = (voltage_value > 4.2f) ? 4.2f : voltage_value;
-					voltage_value = (voltage_value < 3.5f) ? 3.5f : voltage_value;
+					voltage_value =	(voltage_value > 4.2f) ? 4.2f : voltage_value;
+					voltage_value =	(voltage_value < 3.5f) ? 3.5f : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
-					case 4:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-						current_value = (current_value > 1.0f) ? 1.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 4);
-						break;
+				case 4:
+					current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
+					current_value =	(current_value > 1.0f) ? 1.f : current_value;
+					current_value = (current_value < 0.0f) ? 0 : current_value;
+					upd_chisl(current_value, 4);
+					break;
 				}
 			}
 
@@ -292,16 +293,16 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 				switch (menu_item_disch) {
 				case 3:
 					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
-					voltage_value = (voltage_value > 14.5f) ? 14.5f : voltage_value;
-					voltage_value = (voltage_value < 12.0f) ? 12.0f : voltage_value;
+					voltage_value =	(voltage_value > 14.5f) ? 14.5f : voltage_value;
+					voltage_value =	(voltage_value < 12.0f) ? 12.0f : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
-					case 4:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-						current_value = (current_value > 3.0f) ? 3.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 4);
-						break;
+				case 4:
+					current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
+					current_value =	(current_value > 3.0f) ? 3.f : current_value;
+					current_value = (current_value < 0.0f) ? 0 : current_value;
+					upd_chisl(current_value, 4);
+					break;
 				}
 			}
 
@@ -309,16 +310,16 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 				switch (menu_item_disch) {
 				case 3:
 					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
-					voltage_value = (voltage_value > 4.2f) ? 4.2f : voltage_value;
-					voltage_value = (voltage_value < 3.7f) ? 3.7f : voltage_value;
+					voltage_value =	(voltage_value > 4.2f) ? 4.2f : voltage_value;
+					voltage_value =	(voltage_value < 3.7f) ? 3.7f : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
-					case 4:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-						current_value = (current_value > 1.0f) ? 1.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 4);
-						break;
+				case 4:
+					current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
+					current_value =	(current_value > 1.0f) ? 1.f : current_value;
+					current_value = (current_value < 0.0f) ? 0 : current_value;
+					upd_chisl(current_value, 4);
+					break;
 				}
 			}
 		}
@@ -330,18 +331,18 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 				start_screen(mode_item);
 				upd_mode(mode_item);
 				break;
-				case 2:
-					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон изменения напряжения в режиме нагрузки
-					voltage_value = (voltage_value > 15.0f) ? 15.f : voltage_value;
-					voltage_value = (voltage_value < 0.0f) ? 0 : voltage_value;
-					upd_chisl(voltage_value, 3);
-					break;
-					case 3:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон изменения тока в режиме нагрузки
-						current_value = (current_value > 10.0f) ? 10.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 2);
-						break;
+			case 2:
+				voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон изменения напряжения в режиме нагрузки
+				voltage_value = (voltage_value > 15.0f) ? 15.f : voltage_value;
+				voltage_value = (voltage_value < 0.0f) ? 0 : voltage_value;
+				upd_chisl(voltage_value, 3);
+				break;
+			case 3:
+				current_value += 0.1f * (encoder_diff >> 1); // Диапазон изменения тока в режиме нагрузки
+				current_value = (current_value > 10.0f) ? 10.f : current_value;
+				current_value = (current_value < 0.0f) ? 0 : current_value;
+				upd_chisl(current_value, 2);
+				break;
 			}
 		}
 		prev_counter_encoder = counter_encoder; // Сохраняем текущее значение для следующего вызова
@@ -349,7 +350,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 		prev_mode_item = mode_item; // Сохраняем текущее значение для следующего вызова
 	}
 }
-
 
 /* USER CODE END 4 */
 

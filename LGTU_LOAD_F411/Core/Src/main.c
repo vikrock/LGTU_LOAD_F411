@@ -257,15 +257,13 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 				switch (menu_item_disch) {
 				case 3:
 					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
-					voltage_value =
-							(voltage_value > 15.0f) ? 15.0f : voltage_value;
+					voltage_value =	(voltage_value > 15.0f) ? 15.0f : voltage_value;
 					voltage_value = (voltage_value < 0.0f) ? 0 : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
 				case 4:
 					current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-					current_value =
-							(current_value > 5.0f) ? 5.f : current_value;
+					current_value =	(current_value > 5.0f) ? 5.f : current_value;
 					current_value = (current_value < 0.0f) ? 0 : current_value;
 					upd_chisl(current_value, 4);
 					break;

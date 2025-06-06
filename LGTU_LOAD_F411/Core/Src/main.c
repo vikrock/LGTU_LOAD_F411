@@ -101,12 +101,6 @@ int main(void) {
 	//запуск экрана:
 	ssd1306_Init();
 	start_screen(mode_item); // рисуем стартовый экран
-	upd_mode(1); // выводим стартовый режим
-	//вывод тестовых значений на экран:
-	//upd_chisl(0.0, 2);
-	//upd_chisl(0.0, 3);
-	//upd_chisl(15.0, 2);
-	//upd_chisl(23.8, 3);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -114,15 +108,10 @@ int main(void) {
 	while (1) {
 
 		if (button_flag) {
-			Button_click_process(); // Если полнялся флажок прерывания кнопки энкодера, выполняем функцию
+			Button_click_process(); // Если поднялся флажок прерывания кнопки энкодера, выполняем функцию
 		}
-		change_screen(long_press); // опрашиваем смену экрана по длительному нажатию кнопки энкодера
-		if (mode_item == 2) {
-			draw_blinking_underline_disch(menu_item_disch); // Функция для реализации моргания и статичного подчеркивания изменяемых энкодером значений
-		}
-		if (mode_item == 1) {
-			draw_blinking_underline_load(menu_item_load);
-		}
+		change_screen(long_press); // Опрашиваем смену экрана по длительному нажатию кнопки энкодера
+		draw_blinking_underline(menu_item, mode_item); // Отрисовка подчеркиваний и моргание при выборе пункта
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
@@ -183,27 +172,31 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 // Функция для обработки прерывания энкодера
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	static uint16_t prev_counter_encoder = 0; // Переменная для хранения предыдущего значения counter_encoder
-	int16_t encoder_diff = 0; // Переменная которая хранит разницу текущего и предыдущего значения
-	static uint8_t prev_type_item = 0; // Статическая переменная для отслеживания изменения type_item
-	static uint8_t prev_mode_item = 0; // Статическая переменная для отслеживания изменения mode_item
+	static uint8_t prev_type_item = 1U; // Статическая переменная для отслеживания изменения type_item
+	static uint8_t prev_mode_item = 1U; // Статическая переменная для отслеживания изменения mode_item
 
 	if (htim->Instance == TIM1) { // Проверяем, что прерывание пришло от таймера 1
+		int16_t encoder_diff = 0; // Переменная которая хранит разницу текущего и предыдущего значения
 
 		if (long_press == 0) {
 			encoder_diff = TIM1->CNT - prev_counter_encoder; // Вычисляем разницу между текущим и предыдущим значением счетчика
 			counter_encoder = TIM1->CNT; // текущее значение счетчика
+
 		}
 
-		if (short_press == 0 && long_press == 0 && mode_item == 1) {
-			menu_item_load = (counter_encoder >> 1) % 3U + 1U; // Вычисляем выбранный пункт меню (1-3) в режиме нагрузки
-		}
-
-		if (short_press == 0 && long_press == 0 && mode_item == 2) {
-			menu_item_disch = (counter_encoder >> 1) % 4U + 1U; // Вычисляем выбранный пункт меню (1-4) в режиме разрядки
+		if (short_press == 0 && long_press == 0) {
+			switch (mode_item) {
+			case 1: // Режим "Нагрузки"
+				menu_item = (counter_encoder >> 1) % 3U + 1U; // Вычисляем выбранный пункт меню (1-3) в режиме нагрузки
+				break;
+			case 2: // Режим "Зарядка"
+				menu_item = (counter_encoder >> 1) % 4U + 1U; // Вычисляем выбранный пункт меню (1-4) в режиме разрядки
+				break;
+			}
 		}
 
 		if (short_press == 1 && long_press == 0 && mode_item == 2) { // Смена режима работы и типа аккумулятора в режиме разрядки
-			switch (menu_item_disch) {
+			switch (menu_item) {
 			case 1:
 				mode_item = (counter_encoder >> 1) % 2U + 1U; // Вычисляем выбранный режим работы (1-2)
 				start_screen(mode_item);
@@ -216,140 +209,137 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 			}
 
 			if (mode_item != prev_mode_item) { // Обнулениие значений тока и напряжения при изменении режима работы
-				switch (mode_item) {
-				case 1: // Режим нагрузки
-					voltage_value = 0.0f; // Выставляем нулевые значения
-					current_value = 0.0f;
-					break;
-					case 2:
-						voltage_value = 0.0f; // Выставляем нулевые значения
-						current_value = 0.0f;
-						break;
-				}
-				upd_chisl(voltage_value, 5); // Обновляем экран с новым значением напряжения
-				upd_chisl(current_value, 4); // Обновляем экран с новым значением тока
-				}
-
+				type_item = 1;
+				voltage_value = 0.0f;
+				current_value = 0.0f;
+				power_value = 0.0f;
+				start_screen(mode_item);
+				prev_mode_item = mode_item; // Сохраняем текущее значение для следующего вызова
+			}
 
 			if (type_item != prev_type_item) { // Сбрасываем значения напряжения и тока при изменении типа аккумулятора
 				switch (type_item) {
 				case 1: // Ручная настройка аккумулятора
 					voltage_value = 0.0f; // Минимальное напряжение для ручной настройки
-					current_value = 0.0f; // Максимальный ток
+					current_value = 0.0f; // Минимальный ток
 					break;
-					case 2: // Аккумулятор Li-Ion
-						voltage_value = 3.5f; // Минимальное напряжение для Li-Ion
-						current_value = 1.0f; // Максимальный ток
-						break;
-						case 3: // Аккумулятор PbCar
-							voltage_value = 12.0f; // Минимальное напряжение для PbCar
-							current_value = 3.0f; // Максимальный ток
-							break;
-							case 4: // Аккумулятор Li-Po
-								voltage_value = 3.7f; // Минимальное напряжение для Li-Po
-								current_value = 1.0f; // Максимальный ток
-								break;
+				case 2: // Аккумулятор Li-Ion
+					voltage_value = 3.5f; // Минимальное напряжение для Li-Ion
+					current_value = 1.0f; // Максимальный ток
+					break;
+				case 3: // Аккумулятор PbCar
+					voltage_value = 12.0f; // Минимальное напряжение для PbCar
+					current_value = 3.0f; // Максимальный ток
+					break;
+				case 4: // Аккумулятор Li-Po
+					voltage_value = 3.7f; // Минимальное напряжение для Li-Po
+					current_value = 1.0f; // Максимальный ток
+					break;
 				}
+				prev_type_item = type_item; // Сохраняем текущее значение для следующего вызова
 				upd_chisl(voltage_value, 5); // Обновляем экран с новым значением напряжения
 				upd_chisl(current_value, 4); // Обновляем экран с новым значением тока
-				}
+			}
 
 			if (type_item == 1) { // Ручная настройка аккумулятора
-				switch (menu_item_disch) {
+				switch (menu_item) {
 				case 3:
-					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
+					voltage_value += 0.05f * encoder_diff; // Диапазон напряжения
 					voltage_value = (voltage_value > 15.0f) ? 15.0f : voltage_value;
 					voltage_value = (voltage_value < 0.0f) ? 0 : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
-					case 4:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-						current_value = (current_value > 5.0f) ? 5.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 4);
-						break;
+				case 4:
+					current_value += 0.025f * encoder_diff; // Диапазон тока
+					current_value = (current_value > 5.0f) ? 5.f : current_value;
+					current_value = (current_value < 0.0f) ? 0 : current_value;
+					upd_chisl(current_value, 4);
+					break;
 				}
 			}
 
 			if (type_item == 2) { // Аккумулятор Li-Ion
-				switch (menu_item_disch) {
+				switch (menu_item) {
 				case 3:
-					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
+					voltage_value += 0.05f * encoder_diff; // Диапазон напряжения
 					voltage_value = (voltage_value > 4.2f) ? 4.2f : voltage_value;
 					voltage_value = (voltage_value < 3.5f) ? 3.5f : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
-					case 4:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-						current_value = (current_value > 1.0f) ? 1.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 4);
-						break;
+				case 4:
+					current_value += 0.025f * (encoder_diff >> 1); // Диапазон тока
+					current_value = (current_value > 1.0f) ? 1.f : current_value;
+					current_value = (current_value < 0.0f) ? 0 : current_value;
+					upd_chisl(current_value, 4);
+					break;
 				}
 			}
 
 			if (type_item == 3) { // Аккумулятор PbCar
-				switch (menu_item_disch) {
+				switch (menu_item) {
 				case 3:
-					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
+					voltage_value += 0.05f * encoder_diff; // Диапазон напряжения
 					voltage_value = (voltage_value > 14.5f) ? 14.5f : voltage_value;
 					voltage_value = (voltage_value < 12.0f) ? 12.0f : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
-					case 4:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-						current_value = (current_value > 3.0f) ? 3.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 4);
-						break;
+				case 4:
+					current_value += 0.025f * encoder_diff; // Диапазон тока
+					current_value = (current_value > 3.0f) ? 3.f : current_value;
+					current_value = (current_value < 0.0f) ? 0 : current_value;
+					upd_chisl(current_value, 4);
+					break;
 				}
 			}
 
 			if (type_item == 4) { // Аккумулятор Li-Po
-				switch (menu_item_disch) {
+				switch (menu_item) {
 				case 3:
-					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон напряжения
+					voltage_value += 0.05f * encoder_diff; // Диапазон напряжения
 					voltage_value = (voltage_value > 4.2f) ? 4.2f : voltage_value;
 					voltage_value = (voltage_value < 3.7f) ? 3.7f : voltage_value;
 					upd_chisl(voltage_value, 5);
 					break;
-					case 4:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон тока
-						current_value = (current_value > 1.0f) ? 1.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 4);
-						break;
+				case 4:
+					current_value += 0.025f * encoder_diff; // Диапазон тока
+					current_value = (current_value > 1.0f) ? 1.f : current_value;
+					current_value = (current_value < 0.0f) ? 0 : current_value;
+					upd_chisl(current_value, 4);
+					break;
 				}
 			}
 		}
 
 		if (short_press == 1 && long_press == 0 && mode_item == 1) { // Смена режима работы и в режиме нагрузки
-			switch (menu_item_load) {
+			switch (menu_item) {
 			case 1:
 				mode_item = (counter_encoder >> 1) % 2U + 1U; // Вычисляем выбранный режим работы (1-2)
 				start_screen(mode_item);
 				upd_mode(mode_item);
 				break;
-				case 2:
-					voltage_value += 0.1f * (encoder_diff >> 1); // Диапазон изменения напряжения в режиме нагрузки
-					voltage_value = (voltage_value > 15.0f) ? 15.f : voltage_value;
-					voltage_value = (voltage_value < 0.0f) ? 0 : voltage_value;
-					upd_chisl(voltage_value, 3);
-					break;
-					case 3:
-						current_value += 0.1f * (encoder_diff >> 1); // Диапазон изменения тока в режиме нагрузки
-						current_value = (current_value > 10.0f) ? 10.f : current_value;
-						current_value = (current_value < 0.0f) ? 0 : current_value;
-						upd_chisl(current_value, 2);
-						break;
+			case 2:
+				voltage_value += 0.05f * encoder_diff; // Диапазон изменения напряжения в режиме нагрузки
+				voltage_value = (voltage_value > 15.0f) ? 15.f : voltage_value;
+				voltage_value = (voltage_value < 0.0f) ? 0 : voltage_value;
+				upd_chisl(voltage_value, 3);
+				break;
+			case 3:
+				current_value += 0.025f * encoder_diff; // Диапазон изменения тока в режиме нагрузки
+				current_value = (current_value > 10.0f) ? 10.f : current_value;
+				current_value = (current_value < 0.0f) ? 0 : current_value;
+				upd_chisl(current_value, 2);
+				break;
 			}
 		}
+
+		if (mode_item == 1) {
+			power_value = current_value * voltage_value;
+			upd_chisl(power_value, 6);
+		}
+
 		prev_counter_encoder = counter_encoder; // Сохраняем текущее значение для следующего вызова
-		prev_type_item = type_item; // Сохраняем текущее значение для следующего вызова
-		prev_mode_item = mode_item; // Сохраняем текущее значение для следующего вызова
 	}
 }
-
 
 /* USER CODE END 4 */
 

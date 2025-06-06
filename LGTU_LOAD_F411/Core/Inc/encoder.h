@@ -11,9 +11,10 @@
 #include "arm_math.h"
 
 // Объявление переменных
-extern uint16_t counter_encoder; 	// переменная для хранения значений счетчика энкодера от 0 до 300
+extern uint16_t counter_encoder; 	// переменная для хранения значений счетчика энкодера
 extern uint8_t menu_item_disch; 			// переменная для хранения значений пунктов меню экрана от 1 до 4
 extern uint8_t menu_item_load;
+extern uint8_t menu_item;
 extern uint8_t type_item;           // переменная для хранениея значения типов нагрузки
 extern uint8_t mode_item;           // переменная для хранениея значения типов режима
 extern uint8_t button_flag; 		// переменная для хранения флага прерывания с кнопки энкодера
@@ -26,6 +27,7 @@ extern float32_t current_value; 	// переменная для хранения
 extern float32_t voltage_value;// переменная для хранения значения напряжения настроенного энкодером
 extern float32_t current_value;// переменная для хранения значения тока настроенного энкодером
 extern float32_t voltage_value;// переменная для хранения значения напряжения настроенного энкодером
+extern float32_t power_value;	// переменная для хранения значения мощности
 
 
 

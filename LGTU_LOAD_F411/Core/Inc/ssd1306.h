@@ -146,18 +146,16 @@ void ssd1306_DrawCircle(uint8_t par_x, uint8_t par_y, uint8_t par_r, SSD1306_COL
 void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD1306_COLOR color);
 void ssd1306_DrawRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
 void ssd1306_DrawBitmap(uint8_t x, uint8_t y, const unsigned char* bitmap, uint8_t w, uint8_t h, SSD1306_COLOR color);
-void start_screen(uint8_t mode_item);
-void online_screen(void);
 uint8_t float_to_str(float, char *, size_t, uint8_t);
 void upd_chisl(float32_t chisl, uint8_t position);
 void upd_mode(uint8_t numb);
 void upd_type(uint8_t numb);
-// Новые функции (добавил ЗУЕВ)
-void draw_underline_disch(uint8_t menu_item_disch); // Функция для отрисовки подчеркивания в режиме "Разрядки"
-void draw_blinking_underline_disch(uint8_t menu_item_disch); // функция для моргания подчеркивания в режиме "Разрядки"
-void draw_underline_load(uint8_t menu_item_load); // Функция для отрисовки подчеркивания в режиме "Нагрузка"
-void draw_blinking_underline_load(uint8_t menu_item_load); // функция для моргания подчеркивания в режиме "Нагрузка"
 
+void start_screen(uint8_t mode_item); // стартовый экран
+void online_screen(void); // экран в при работе электронной нагрузки
+void display_text(const char* text, uint8_t x, uint8_t y); // функция для вывода текста на экран
+void draw_underline(uint8_t menu_item, uint8_t mode_item); // Функция рисования статических подчеркиваний
+void draw_blinking_underline(uint8_t menu_item, uint8_t mode_item); // Функция моргания подчеркиваний
 void change_screen (uint8_t long_press); // Функция для смены экранов
 
 
